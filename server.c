@@ -12,7 +12,7 @@
 #include <sys/errno.h>
 #include <arpa/inet.h>
 
-#define DIE(str) perror(str);exit(-1);
+#define DIE(str) printf(str);exit(-1);
 #define BUFSIZE 2048
 
 enum HTTP_REQUEST_TYPE {
@@ -206,10 +206,59 @@ void handle_request(int sd_current, struct sockaddr_in pin){
 }
 
 int main(int argc, char* argv[]) {
-	int portnumber;
+	int portnumber = 8080;
 	struct sockaddr_in sin, pin;
 	int sd, sd_current;
 	int addrlen;
+
+    const char* helpmsg =
+        "Simple HTTP 1.0 server\n"
+        "A DV1457 assignment\n"
+        "Options:\n"
+        "\t-h Show this help message\n"
+        "\t-p port (default: 8080)\n"
+        "\t-d Run as daemon\n"
+        "\t-l logfile\n"
+        "\t-s [fork|thread|prefork|mux]\n";
+
+    for (int argi=1; argi<argc; argi++){
+        if (strlen(argv[argi]) < 1){
+            printf("Unknown parameter\n");
+            printf(helpmsg);
+        }
+        switch(argv[argi][1]){
+            case 'h':
+                printf(helpmsg);
+                exit(0);
+                break;
+            case 'p':
+                if (argi+1 >= argc){
+                    printf("No port specified!\n");
+                    printf(helpmsg);
+                    exit(-1);
+                }
+                argi++;
+                portnumber = atoi(argv[argi]);
+                break;
+            case 'd':
+                printf("Daemons not yet implemented!\n");
+                exit(-1);
+                break;
+            case 'l':
+                printf("Log output not yet implemented!\n");
+                exit(-1);
+                break;
+            case 's':
+                printf("Different fork techniques not yet implemented!\n");
+                exit(-1);
+                break;
+            default:
+                printf(helpmsg);
+                printf("Unknown parameter\n");
+                exit(-1);
+                break;
+        }
+    }
     
     // Handle children so they don't become zombies
     struct sigaction sigchld_action = {
@@ -217,13 +266,6 @@ int main(int argc, char* argv[]) {
         .sa_flags = SA_NOCLDWAIT
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
-
-	if(argc != 2) {
-		fprintf(stderr, "Usage: %s <port>\n", argv[0]);
-		exit(-1);
-	}
-
-	portnumber = atoi(argv[1]);
 
 	if((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		DIE("socket");
