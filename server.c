@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/errno.h>
 #include <arpa/inet.h>
 
 #define DIE(str) perror(str);exit(-1);
-#define BUFSIZE 512
+#define BUFSIZE 2048
 
 enum HTTP_REQUEST_TYPE {
     HTTP_TYPE_HEAD,
@@ -77,14 +78,6 @@ struct http_request* parse_http_request(const char* payload){
     version_str[end-start] = '\0';
     i++;
 
-    // Debug Parsing
-    //printf("First line: %s\n", first_line);
-    printf("Type: %s\n", type_str);
-    printf("Path: %s\n", path_str);
-    printf("Version: %s\n", version_str);
-    //printf("Properties:\n%s\n", properties_str);
-    //printf("Whole msg:\n%s\n", payload);
-
     // Check type
     int http_type = HTTP_TYPE_UNKNOWN;
     if (strcmp(type_str, "HEAD") == 0){
@@ -93,6 +86,25 @@ struct http_request* parse_http_request(const char* payload){
     else if (strcmp(type_str, "GET") == 0){
         http_type = HTTP_TYPE_GET;
     }
+    else {
+        http_type = HTTP_TYPE_UNKNOWN;
+    }
+
+    //
+    if (strcmp(path_str,"") == 0 || strcmp(path_str,"/") == 0){
+        free(path_str);
+        const char* index_path = "index.html";
+        path_str = malloc(strlen(index_path)*sizeof(char));
+        strcpy(path_str, index_path);
+    }
+
+    // Debug Parsing
+    //printf("First line: %s\n", first_line);
+    printf("Type: %s\n", type_str);
+    printf("Path: %s\n", path_str);
+    printf("Version: %s\n", version_str);
+    //printf("Properties:\n%s\n", properties_str);
+    //printf("Whole msg:\n%s\n", payload);
 
     // Clean
     free(type_str);
@@ -105,6 +117,7 @@ struct http_request* parse_http_request(const char* payload){
     req->version = version_str;
     req->properties = properties_str;
 
+    // TODO: Return null if unable to parse so the server can raise a 400-Bad Request
     return req;
 }
 
@@ -120,14 +133,75 @@ void handle_request(int sd_current, struct sockaddr_in pin){
     
     printf("Request from %s:%i\n", ipAddress, ntohs(pin.sin_port));
     printf("Message: %s\n", buf);
-    parse_http_request(buf);
+    struct http_request* request = parse_http_request(buf);
     
-    const char* response = "server response";
+    
+    char response[BUFSIZE];
+    if (request == NULL){
+        strcpy(response, "HTTP/1.0 400 Bad Request\n"
+            "Date: Not Implemented\n"
+            "Server: DV1457 http server\n"
+            "Last-Modified: Not Implemented\n"
+        );
+    }
+    else if (request->type == HTTP_TYPE_UNKNOWN){
+        strcpy(response, "HTTP/1.0 501 Not Implemented\n"
+            "Date: Not Implemented\n"
+            "Server: DV1457 http server\n"
+            "Last-Modified: Not Implemented\n"
+        );
+    }
+    else {
+        const char* basedir = "www/";
+        char filepath[BUFSIZE];
+        snprintf(filepath, BUFSIZE*sizeof(char), "%s%s", basedir, request->path);
+        FILE* fd = fopen(filepath, "r");
+        if (fd == NULL){
+            strcpy(response, "HTTP/1.0 404 Not found\n"
+                "Date: Not Implemented\n"
+                "Server: DV1457 http server\n"
+                "Last-Modified: Not Implemented\n"
+                "\r\n"
+                "404 Not Found"
+            );
+        }
+        else {
+            // Find file size
+            fseek(fd, 0, SEEK_END);
+            long fsize = ftell(fd);
+            fseek(fd, 0, SEEK_SET);  //same as rewind(f);
+            // Malloc buffer
+            char *response_body = malloc(fsize + 1);
+            // Copy file to buffer
+            fread(response_body, fsize, 1, fd);
+            // Close file
+            fclose(fd);
+
+
+            snprintf(
+                response,
+                sizeof(response),
+                "HTTP/1.0 200 OK\n"
+                "Date: Not Implemented\n"
+                "Server: DV1457 http server\n"
+                "Last-Modified: Not Implemented\n"
+                "Content-Type: text/html\n"
+                "Content-Length: %d\n"
+                "\r\n"
+                "%s\n",
+                strlen(response_body)*sizeof(char),
+                response_body
+            );
+            free(response_body);
+        }
+    }
     if(send(sd_current, response, strlen(response), 0) == -1) {
         DIE("send");
     }
     printf("\nSent response: %s\n", response);
-    
+
+    // Cleanup
+    free_http_request_struct(request);
     close(sd_current);
 }
 
