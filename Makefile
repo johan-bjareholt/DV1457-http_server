@@ -1,10 +1,19 @@
 NAME=httpd
 CC=gcc
-CFLAGS=-g
-SRC=server.c
+CFLAGS=-g -Iinclude
+OBJ=obj/response_handler.o obj/request_handler.o obj/connection_handler.o obj/main.o
 
-all:
-	$(CC) $(CFLAGS) $(SRC) -o $(NAME)
+all: $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+
+obj/%.o: src/%.c prepare
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm $(NAME)
+	rm -rf obj
+	rm -f $(NAME)
+
+.PHONY: prepare
+prepare:
+	mkdir -p obj
+
