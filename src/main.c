@@ -9,10 +9,13 @@
 #include <sys/errno.h>
 
 #include "main.h"
+#include "config_parser.h"
 #include "connection_handler.h"
 
+int portnumber = 8080;
+char* wwwdir = "www/";
+
 int main(int argc, char* argv[]) {
-	int portnumber = 8080;
 	struct sockaddr_in sin, pin;
 	int sd, sd_current;
 	int addrlen;
@@ -26,6 +29,8 @@ int main(int argc, char* argv[]) {
         "\t-d Run as daemon\n"
         "\t-l logfile\n"
         "\t-s [fork|thread|prefork|mux]\n";
+
+    parse_config();
 
     for (int argi=1; argi<argc; argi++){
         if (strlen(argv[argi]) < 1){

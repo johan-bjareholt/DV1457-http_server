@@ -38,6 +38,12 @@ struct http_request* parse_http_request(const char* payload){
     char* path_str = malloc((end-start+1)*sizeof(char));
     strncpy(path_str, first_line+start, end-start);
     path_str[end-start] = '\0';
+    if (strlen(path_str) > 20){
+        free(first_line);
+        free(type_str);
+        free(path_str);
+        return NULL;
+    }
     i++;
 
     // Parse version

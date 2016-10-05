@@ -1,3 +1,4 @@
+#include "main.h"
 #include "response_handler.h"
 
 char* generate_http_response(struct http_request* request){
@@ -6,7 +7,9 @@ char* generate_http_response(struct http_request* request){
         const char* res_400 = "HTTP/1.0 400 Bad Request\n"
             "Date: Not Implemented\n"
             "Server: DV1457 http server\n"
-            "Last-Modified: Not Implemented\n";
+            "Last-Modified: Not Implemented\n"
+            "\r\n"
+            "400 Bad Request";
 
         response = malloc(strlen(res_400)*sizeof(char));
         strcpy(response, res_400);
@@ -15,14 +18,15 @@ char* generate_http_response(struct http_request* request){
         const char* res_501 = "HTTP/1.0 501 Not Implemented\n"
             "Date: Not Implemented\n"
             "Server: DV1457 http server\n"
-            "Last-Modified: Not Implemented\n";
+            "Last-Modified: Not Implemented\n"
+            "\r\n"
+            "501 Not Implemented";
         response = malloc(strlen(res_501)*sizeof(char));
         strcpy(response, res_501);
     }
     else {
-        const char* basedir = "www/";
         char filepath[256];
-        snprintf(filepath, 256*sizeof(char), "%s%s", basedir, request->path);
+        snprintf(filepath, 256*sizeof(char), "%s%s", wwwdir, request->path);
         FILE* fd = fopen(filepath, "r");
         if (fd == NULL){
             const char* res_404 = "HTTP/1.0 404 Not found\n"
@@ -56,7 +60,7 @@ char* generate_http_response(struct http_request* request){
             // 
             sprintf(response, res_200, fsize+(strlen(res_end)));
             // Append file content to buffer
-            fread(response+strlen(response), fsize, 1, fd);
+            fread(response+strlen(response), fsize, sizeof(char), fd);
             // End request
             strcpy(response+strlen(response), res_end);
             
