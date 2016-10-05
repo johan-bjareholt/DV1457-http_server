@@ -1,7 +1,7 @@
 NAME=httpd
 CC=gcc
 CFLAGS=-g -Iinclude
-OBJ=obj/response_handler.o obj/request_handler.o obj/connection_handler.o obj/main.o obj/config_parser.o
+OBJ=obj/response_handler.o obj/request_handler.o obj/connection_handler.o obj/main.o obj/config_parser.o obj/daemonize.o
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)

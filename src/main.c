@@ -10,6 +10,7 @@
 
 #include "main.h"
 #include "config_parser.h"
+#include "daemonize.h"
 #include "connection_handler.h"
 
 int portnumber = 8080;
@@ -52,8 +53,7 @@ int main(int argc, char* argv[]) {
                 portnumber = atoi(argv[argi]);
                 break;
             case 'd':
-                printf("Daemons not yet implemented!\n");
-                exit(-1);
+                daemonize();
                 break;
             case 'l':
                 printf("Log output not yet implemented!\n");
@@ -95,6 +95,9 @@ int main(int argc, char* argv[]) {
         DIE("listen");
     }
 
+    printf("wwwdir: %s\n", wwwdir);
+    printf("port: %d\n", portnumber);
+    
     bool running = true;
     pid_t pid;
     while (running){

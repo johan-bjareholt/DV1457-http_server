@@ -27,6 +27,7 @@ char* generate_http_response(struct http_request* request){
     else {
         char filepath[256];
         snprintf(filepath, 256*sizeof(char), "%s%s", wwwdir, request->path);
+        printf("%s\n",filepath);
         FILE* fd = fopen(filepath, "r");
         if (fd == NULL){
             const char* res_404 = "HTTP/1.0 404 Not found\n"
