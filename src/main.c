@@ -9,12 +9,17 @@
 #include <sys/errno.h>
 
 #include "main.h"
+#include "log.h"
+#include "thread.h"
 #include "config_parser.h"
 #include "daemonize.h"
 #include "connection_handler.h"
 
+// Set externs
 int portnumber = 8080;
 char* wwwdir = "www/";
+bool running = true;
+int dispatch_method = DISPATCH_METHOD_FORK;
 
 int main(int argc, char* argv[]) {
 	struct sockaddr_in sin, pin;
@@ -56,12 +61,34 @@ int main(int argc, char* argv[]) {
                 daemonize();
                 break;
             case 'l':
-                printf("Log output not yet implemented!\n");
-                exit(-1);
+                if (argi+1 >= argc){
+                    printf("No logfile specified!\n");
+                    printf(helpmsg);
+                    exit(-1);
+                }
+                log_method = LOG_METHOD_LOGFILE;
+                argi++;
+                logfilepath = argv[argi];
                 break;
             case 's':
                 printf("Different fork techniques not yet implemented!\n");
-                exit(-1);
+                if (argi+1 >= argc){
+                    printf("No multiprocessing method specified!\n");
+                    printf(helpmsg);
+                    exit(-1);
+                }
+                argi++;
+                if (strcmp(argv[argi], "fork")){
+                    dispatch_method = DISPATCH_METHOD_FORK;
+                     
+                }
+                else if (strcmp(argv[argi], "thread")){
+                    dispatch_method = DISPATCH_METHOD_THREAD;
+                }
+                else {
+                    printf("Invalid method\n");
+                    exit(-1);
+                }
                 break;
             default:
                 printf(helpmsg);
@@ -98,7 +125,6 @@ int main(int argc, char* argv[]) {
     printf("wwwdir: %s\n", wwwdir);
     printf("port: %d\n", portnumber);
     
-    bool running = true;
     pid_t pid;
     while (running){
         printf("Waiting for connection...\n");
@@ -108,20 +134,7 @@ int main(int argc, char* argv[]) {
             DIE("accept");
         }
         printf("Accepted connection!\n");
-        
-        pid_t pid = fork();
-        if (pid == -1){
-            DIE("Unable to fork");
-        }
-        else if (pid == 0){
-            // Child
-            handle_connection(sd_current, pin);
-            running = false;
-        }
-        else {
-            // Parent
-            close(sd_current);
-        }
+        dispatch_connection(sd_current, pin);
     }
     // Close sockets
     if (pid != 0)

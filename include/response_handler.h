@@ -19,6 +19,7 @@ enum HTTP_RESPONSE_TYPE {
 
 struct http_response {
     int type;
+    int size;
     char* message;
 };
 

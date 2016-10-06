@@ -4,9 +4,9 @@
 
 #define BUFSIZE 2048
 
-void handle_connection(int sd_current, struct sockaddr_in pin){
+void handle_connection(struct handle_connection_params* params){
 	char buf[BUFSIZE];
-    if (recv(sd_current, buf, sizeof(buf), 0) == -1) {
+    if (recv(params->sd_current, buf, sizeof(buf), 0) == -1) {
         perror("recv");
         exit(-1);
         DIE("recv");
@@ -14,9 +14,9 @@ void handle_connection(int sd_current, struct sockaddr_in pin){
 
     char ipAddress[INET_ADDRSTRLEN];
     
-    inet_ntop(AF_INET, &pin.sin_addr, ipAddress, sizeof(ipAddress));
+    inet_ntop(AF_INET, &params->pin.sin_addr, ipAddress, sizeof(ipAddress));
     
-    printf("Request from %s:%i\n", ipAddress, ntohs(pin.sin_port));
+    printf("Request from %s:%i\n", ipAddress, ntohs(params->pin.sin_port));
     printf("Message: %s\n", buf);
     struct http_request* request = parse_http_request(buf);
 
@@ -24,7 +24,7 @@ void handle_connection(int sd_current, struct sockaddr_in pin){
     
     log_request(ipAddress, request, response);
 
-    if(send(sd_current, response->message, strlen(response->message), 0) == -1) {
+    if(send(params->sd_current, response->message, strlen(response->message), 0) == -1) {
         DIE("send");
     }
     printf("\nSent response: %s\n", response->message);
@@ -32,6 +32,7 @@ void handle_connection(int sd_current, struct sockaddr_in pin){
     // Cleanup
     free_http_request(request);
     free_http_response(response);
-    close(sd_current);
+    close(params->sd_current);
+    free(params);
 }
 

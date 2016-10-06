@@ -21,4 +21,4 @@ struct http_request {
 
 void free_http_request(struct http_request* target);
 
-struct http_request* parse_http_request(const char* payload);
+struct http_request* parse_http_request(char* payload);

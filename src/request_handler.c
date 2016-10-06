@@ -6,7 +6,7 @@ void free_http_request(struct http_request* target){
     free(target->properties);
 }
 
-struct http_request* parse_http_request(const char* payload){
+struct http_request* parse_http_request(char* payload){
     int i, start, end;
     
     // Copy first line to first_line
@@ -51,8 +51,7 @@ struct http_request* parse_http_request(const char* payload){
     for (i=i; i<strlen(first_line) && first_line[i] != '\n'; i++){}
     end = i;
     char* version_str = malloc((end-start+1)*sizeof(char));
-    strncpy(version_str, first_line+start, end-start);
-    version_str[end-start] = '\0';
+    strncpy(version_str, strtok(first_line+start,"\r\n"), end-start);
     i++;
 
     // Check type

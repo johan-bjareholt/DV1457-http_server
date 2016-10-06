@@ -10,4 +10,9 @@
 #include "request_handler.h"
 #include "response_handler.h"
 
-void handle_connection(int sd_current, struct sockaddr_in pin);
+struct handle_connection_params {
+    int sd_current;
+    struct sockaddr_in pin;
+};
+
+void handle_connection(struct handle_connection_params* params);

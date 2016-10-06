@@ -16,7 +16,9 @@ struct http_response* generate_http_response(struct http_request* request){
             "Server: DV1457 http server\n"
             "Last-Modified: Not Implemented\n"
             "\r\n"
-            "400 Bad Request";
+            "<html><body>"
+            "<h1>400 Bad Request</h1>"
+            "</body></html>";
 
         res->message = malloc(strlen(res_400)*sizeof(char));
         strcpy(res->message, res_400);
@@ -28,7 +30,9 @@ struct http_response* generate_http_response(struct http_request* request){
             "Server: DV1457 http server\n"
             "Last-Modified: Not Implemented\n"
             "\r\n"
-            "501 Not Implemented";
+            "<html><body>"
+            "<h1>501 Not Implemented</h1>"
+            "</body></html>";
         res->message = malloc(strlen(res_501)*sizeof(char));
         strcpy(res->message, res_501);
     }
@@ -44,7 +48,9 @@ struct http_response* generate_http_response(struct http_request* request){
                 "Server: DV1457 http server\n"
                 "Last-Modified: Not Implemented\n"
                 "\r\n"
-                "<html><body><h1>404 Not Found</h1></body></html>";
+                "<html><body>"
+                "<h1>404 Not Found</h1>"
+                "</body></html>";
             res->message = malloc(strlen(res_404)*sizeof(char));
             strcpy(res->message, res_404);
         }
@@ -69,7 +75,8 @@ struct http_response* generate_http_response(struct http_request* request){
             const int EXTRA = 128*sizeof(char); // Extra is needed for dynamic fields such as date and content-length
             res->message = malloc(hsize+fsize+EXTRA);
             // 
-            sprintf(res->message, res_200, fsize+(strlen(res_end)));
+            res->size = fsize+(strlen(res_end));
+            sprintf(res->message, res_200, res->size);
             // Append file content to buffer
             fread(res->message+strlen(res->message), fsize, sizeof(char), fd);
             // End request
