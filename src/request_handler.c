@@ -70,7 +70,7 @@ struct http_request* parse_http_request(const char* payload){
     //
     if (strcmp(path_str,"") == 0 || strcmp(path_str,"/") == 0){
         free(path_str);
-        const char* index_path = "index.html";
+        const char* index_path = "/index.html";
         path_str = malloc(strlen(index_path)*sizeof(char));
         strcpy(path_str, index_path);
     }

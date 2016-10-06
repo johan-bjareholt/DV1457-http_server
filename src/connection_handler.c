@@ -1,5 +1,6 @@
 #include "main.h"
 #include "connection_handler.h"
+#include "log.h"
 
 #define BUFSIZE 2048
 
@@ -18,7 +19,8 @@ void handle_connection(int sd_current, struct sockaddr_in pin){
     printf("Request from %s:%i\n", ipAddress, ntohs(pin.sin_port));
     printf("Message: %s\n", buf);
     struct http_request* request = parse_http_request(buf);
-    
+
+    log_request(ipAddress, request);
     
     char* response = generate_http_response(request);
 
