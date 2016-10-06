@@ -1,6 +1,6 @@
 #include "request_handler.h"
 
-void free_http_request_struct(struct http_request* target){
+void free_http_request(struct http_request* target){
     free(target->path);
     free(target->version);
     free(target->properties);
@@ -56,15 +56,15 @@ struct http_request* parse_http_request(const char* payload){
     i++;
 
     // Check type
-    int http_type = HTTP_TYPE_UNKNOWN;
+    int http_type = HTTP_REQ_TYPE_UNKNOWN;
     if (strcmp(type_str, "HEAD") == 0){
-        http_type = HTTP_TYPE_HEAD;
+        http_type = HTTP_REQ_TYPE_HEAD;
     }
     else if (strcmp(type_str, "GET") == 0){
-        http_type = HTTP_TYPE_GET;
+        http_type = HTTP_REQ_TYPE_GET;
     }
     else {
-        http_type = HTTP_TYPE_UNKNOWN;
+        http_type = HTTP_REQ_TYPE_UNKNOWN;
     }
 
     //

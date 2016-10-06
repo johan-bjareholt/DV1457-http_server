@@ -20,18 +20,18 @@ void handle_connection(int sd_current, struct sockaddr_in pin){
     printf("Message: %s\n", buf);
     struct http_request* request = parse_http_request(buf);
 
-    log_request(ipAddress, request);
+    struct http_response* response = generate_http_response(request);
     
-    char* response = generate_http_response(request);
+    log_request(ipAddress, request, response);
 
-    if(send(sd_current, response, strlen(response), 0) == -1) {
+    if(send(sd_current, response->message, strlen(response->message), 0) == -1) {
         DIE("send");
     }
-    printf("\nSent response: %s\n", response);
+    printf("\nSent response: %s\n", response->message);
 
     // Cleanup
-    free_http_request_struct(request);
-    free(response);
+    free_http_request(request);
+    free_http_response(response);
     close(sd_current);
 }
 
