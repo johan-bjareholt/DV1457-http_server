@@ -71,18 +71,17 @@ int main(int argc, char* argv[]) {
                 logfilepath = argv[argi];
                 break;
             case 's':
-                printf("Different fork techniques not yet implemented!\n");
                 if (argi+1 >= argc){
                     printf("No multiprocessing method specified!\n");
                     printf(helpmsg);
                     exit(-1);
                 }
                 argi++;
-                if (strcmp(argv[argi], "fork")){
+                if (strcmp(argv[argi], "fork") == 0){
                     dispatch_method = DISPATCH_METHOD_FORK;
                      
                 }
-                else if (strcmp(argv[argi], "thread")){
+                else if (strcmp(argv[argi], "thread") == 0){
                     dispatch_method = DISPATCH_METHOD_THREAD;
                 }
                 else {
@@ -97,6 +96,15 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
+
+    // chroot
+    /*
+    chdir(wwwdir);
+    if (chroot(wwwdir) != 0) {
+        perror("Unable to chroot");
+        return 1;
+    }
+    */
     
     // Handle children so they don't become zombies
     struct sigaction sigchld_action = {
@@ -126,14 +134,14 @@ int main(int argc, char* argv[]) {
     printf("port: %d\n", portnumber);
     
     pid_t pid;
+    printf("Waiting for connections...\n");
     while (running){
-        printf("Waiting for connection...\n");
         
         addrlen = sizeof(pin);
         if ((sd_current = accept(sd, (struct sockaddr*) &pin, (socklen_t*) &addrlen)) == -1) {
             DIE("accept");
         }
-        printf("Accepted connection!\n");
+        //printf("Accepted connection!\n");
         dispatch_connection(sd_current, pin);
     }
     // Close sockets

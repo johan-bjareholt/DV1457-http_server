@@ -49,4 +49,5 @@ void thread_connection_handler(int sd_current, struct sockaddr_in pin){
         fprintf(stderr, "Error creating thread\n");
         exit(-1);
     }
+    pthread_detach(child_thread);
 }

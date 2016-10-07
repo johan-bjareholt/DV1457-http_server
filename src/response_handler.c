@@ -39,7 +39,7 @@ struct http_response* generate_http_response(struct http_request* request){
     else {
         char filepath[256];
         snprintf(filepath, 256*sizeof(char), "%s%s", wwwdir, request->path);
-        printf("%s\n",filepath);
+        //printf("%s\n",filepath);
         FILE* fd = fopen(filepath, "r");
         if (fd == NULL){
             res->type = HTTP_RES_TYPE_404;
