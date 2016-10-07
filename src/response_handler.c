@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "main.h"
 #include "response_handler.h"
 
@@ -10,10 +12,21 @@ struct http_response* generate_http_response(struct http_request* request){
     struct http_response* res = malloc(sizeof(struct http_response));
     res->type = HTTP_RES_TYPE_UNKNOWN;
     res->message = NULL;
+	
+    // Datetime
+    time_t ctime; // calendar time
+    struct tm * timeinfo; // time+timezone
+	ctime = time(NULL);
+    timeinfo = localtime (&ctime);
+    char timestr [80];
+    strftime (timestr,80,"%d/%h/%G:%T %z",timeinfo);
+        
+    const int EXTRA = 128*sizeof(char); // Extra is needed for dynamic fields such as date and content-length
+
     if (request == NULL){
         res->type = HTTP_RES_TYPE_400;
         const char* res_400 = "HTTP/1.0 400 Bad Request\n"
-            "Date: Not Implemented\n"
+            "Date: %s\n"
             "Server: DV1457 http server\n"
             "Last-Modified: Not Implemented\n"
             "\r\n"
@@ -21,21 +34,21 @@ struct http_response* generate_http_response(struct http_request* request){
             "<h1>400 Bad Request</h1>"
             "</body></html>";
 
-        res->message = malloc(strlen(res_400)*sizeof(char));
-        strcpy(res->message, res_400);
+        res->message = malloc(strlen(res_400)*sizeof(char)+EXTRA);
+        sprintf(res->message, res_400, timestr);
     }
     else if (request->type == HTTP_REQ_TYPE_UNKNOWN){
         res->type = HTTP_RES_TYPE_501;
         const char* res_501 = "HTTP/1.0 501 Not Implemented\n"
-            "Date: Not Implemented\n"
+            "Date: %s\n"
             "Server: DV1457 http server\n"
             "Last-Modified: Not Implemented\n"
             "\r\n"
             "<html><body>"
             "<h1>501 Not Implemented</h1>"
             "</body></html>";
-        res->message = malloc(strlen(res_501)*sizeof(char));
-        strcpy(res->message, res_501);
+        res->message = malloc(strlen(res_501)*sizeof(char)+EXTRA);
+        sprintf(res->message, res_501, timestr);
     }
     else {
         char filepath[256];
@@ -52,8 +65,8 @@ struct http_response* generate_http_response(struct http_request* request){
                 "<html><body>"
                 "<h1>404 Not Found</h1>"
                 "</body></html>";
-            res->message = malloc(strlen(res_404)*sizeof(char));
-            strcpy(res->message, res_404);
+            res->message = malloc(strlen(res_404)*sizeof(char)+EXTRA);
+            sprintf(res->message, res_404, timestr);
         }
         else {
             res->type = HTTP_RES_TYPE_200;
@@ -74,7 +87,6 @@ struct http_response* generate_http_response(struct http_request* request){
             // Find head size
             int hsize = strlen(res_200)*sizeof(char);
             // Malloc buffer
-            const int EXTRA = 128*sizeof(char); // Extra is needed for dynamic fields such as date and content-length
             res->message = calloc(sizeof(char), hsize+fsize+esize+EXTRA);
             //
             res->size = fsize+(strlen(res_end));
