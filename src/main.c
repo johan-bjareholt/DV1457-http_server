@@ -17,14 +17,19 @@
 
 // Set externs
 int portnumber = 8080;
-char* wwwdir = "www/";
+char* wwwdir;
 bool running = true;
 int dispatch_method = DISPATCH_METHOD_FORK;
+
+pid_t parent_pid;
 
 int main(int argc, char* argv[]) {
 	struct sockaddr_in sin, pin;
 	int sd, sd_current;
 	int addrlen;
+
+    wwwdir = malloc(sizeof(char));
+    strcpy(wwwdir, "");
 
     const char* helpmsg =
         "Simple HTTP 1.0 server\n"
@@ -132,8 +137,9 @@ int main(int argc, char* argv[]) {
 
     printf("wwwdir: %s\n", wwwdir);
     printf("port: %d\n", portnumber);
+
+    parent_pid = getpid();
     
-    pid_t pid;
     printf("Waiting for connections...\n");
     while (running){
         
@@ -144,9 +150,10 @@ int main(int argc, char* argv[]) {
         //printf("Accepted connection!\n");
         dispatch_connection(sd_current, pin);
     }
-    // Close sockets
-    if (pid != 0)
+    if (getpid() == parent_pid)
         close(sd);
+
+    free(wwwdir);
 
 	exit(0);
 }

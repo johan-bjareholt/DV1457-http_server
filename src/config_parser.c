@@ -21,6 +21,7 @@ void parse_config(){
     strcpy(filepath+strlen(homedir), filename);
     
     FILE* fd = fopen(filepath, "r");
+    free(filepath);
     if (fd == NULL){
         printf("No config file available!\n");
         return;
@@ -39,7 +40,7 @@ void parse_config(){
             portnumber = atoi(value);
         }
         else if (strcmp(key, "wwwdir") == 0){
-            // Fix memory leak
+            free(wwwdir);
             wwwdir = malloc((strlen(value)+1)*sizeof(char));
             strcpy(wwwdir, value);
         }

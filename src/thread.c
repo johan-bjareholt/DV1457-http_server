@@ -18,22 +18,22 @@ void dispatch_connection(int sd_current, struct sockaddr_in pin){
 }
 
 void fork_connection_handler(int sd_current, struct sockaddr_in pin){
-        pid_t pid = fork();
-        if (pid == -1){
-            DIE("Unable to fork");
-        }
-        else if (pid == 0){
-            // Child
-            struct handle_connection_params* params = malloc(sizeof(struct handle_connection_params));
-            params->sd_current = sd_current;
-            params->pin = pin;
-            handle_connection(params);
-            running = false;
-        }
-        else {
-            // Parent
-            close(sd_current);
-        }
+    pid_t pid = fork();
+    if (pid == -1){
+        DIE("Unable to fork");
+    }
+    else if (pid == 0){
+        // Child
+        struct handle_connection_params* params = malloc(sizeof(struct handle_connection_params));
+        params->sd_current = sd_current;
+        params->pin = pin;
+        handle_connection(params);
+        running = false;
+    }
+    else {
+        // Parent
+        close(sd_current);
+    }
 }
 
 void thread_connection_handler(int sd_current, struct sockaddr_in pin){

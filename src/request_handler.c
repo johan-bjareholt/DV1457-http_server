@@ -4,6 +4,7 @@ void free_http_request(struct http_request* target){
     free(target->path);
     free(target->version);
     free(target->properties);
+    free(target);
 }
 
 struct http_request* parse_http_request(char* payload){

@@ -9,6 +9,7 @@ void free_http_response(struct http_response* res){
 struct http_response* generate_http_response(struct http_request* request){
     struct http_response* res = malloc(sizeof(struct http_response));
     res->type = HTTP_RES_TYPE_UNKNOWN;
+    res->message = NULL;
     if (request == NULL){
         res->type = HTTP_RES_TYPE_400;
         const char* res_400 = "HTTP/1.0 400 Bad Request\n"
@@ -64,6 +65,7 @@ struct http_response* generate_http_response(struct http_request* request){
                 "Content-Length: %d\n"
                 "\r\n";
             const char* res_end = "\r\n";
+            int esize = strlen(res_end)*sizeof(char);
             
             // Find file size
             fseek(fd, 0, SEEK_END);
@@ -73,8 +75,8 @@ struct http_response* generate_http_response(struct http_request* request){
             int hsize = strlen(res_200)*sizeof(char);
             // Malloc buffer
             const int EXTRA = 128*sizeof(char); // Extra is needed for dynamic fields such as date and content-length
-            res->message = malloc(hsize+fsize+EXTRA);
-            // 
+            res->message = calloc(sizeof(char), hsize+fsize+esize+EXTRA);
+            //
             res->size = fsize+(strlen(res_end));
             sprintf(res->message, res_200, res->size);
             // Append file content to buffer
