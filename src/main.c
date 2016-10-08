@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/errno.h>
+#include <pwd.h>
 
 #include "main.h"
 #include "log.h"
@@ -28,8 +29,8 @@ int main(int argc, char* argv[]) {
 	int sd, sd_current;
 	int addrlen;
 
-    wwwdir = malloc(sizeof(char));
-    strcpy(wwwdir, "");
+    wwwdir = malloc(50*sizeof(char));
+    strcpy(wwwdir, "/home/johan/Programming/C/DV1457-http_server/www");
 
     const char* helpmsg =
         "Simple HTTP 1.0 server\n"
@@ -41,7 +42,9 @@ int main(int argc, char* argv[]) {
         "\t-l logfile\n"
         "\t-s [fork|thread|prefork|mux]\n";
 
-    parse_config();
+
+    const char* configpath = "./.lab3-config";
+    parse_config(configpath);
 
     for (int argi=1; argi<argc; argi++){
         if (strlen(argv[argi]) < 1){
@@ -101,15 +104,20 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
+    
+    printf("wwwdir: %s\n", wwwdir);
+    printf("port: %d\n", portnumber);
 
     // chroot
-    /*
+
     chdir(wwwdir);
     if (chroot(wwwdir) != 0) {
         perror("Unable to chroot");
         return 1;
     }
-    */
+    free(wwwdir);
+    wwwdir = malloc(sizeof(char));
+    strcpy(wwwdir, "");
     
     // Handle children so they don't become zombies
     struct sigaction sigchld_action = {
@@ -134,9 +142,6 @@ int main(int argc, char* argv[]) {
     if(listen(sd, 10) == -1) {
         DIE("listen");
     }
-
-    printf("wwwdir: %s\n", wwwdir);
-    printf("port: %d\n", portnumber);
 
     parent_pid = getpid();
     

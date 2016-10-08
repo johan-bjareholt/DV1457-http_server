@@ -11,17 +11,18 @@
 
 
 
-void parse_config(){
+void parse_config(const char* filepath){
 
+    /*
     struct passwd *pw = getpwuid(getuid());
     const char *homedir = pw->pw_dir;
     const char* filename = "/.lab3-config";
     char* filepath = malloc((strlen(homedir)+strlen(filename)+1)*sizeof(char));
     strcpy(filepath, homedir);
     strcpy(filepath+strlen(homedir), filename);
+    */
     
     FILE* fd = fopen(filepath, "r");
-    free(filepath);
     if (fd == NULL){
         printf("No config file available!\n");
         return;
