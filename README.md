@@ -13,5 +13,5 @@ A simple HTTP 1.0 server written in C for the course DV1457 Programming in a Uni
 #### ToDo
 
 - Test check_students script
-- Add support for last-modified
 - Jail support
+- Kill all forked processes and threads on shutdown
