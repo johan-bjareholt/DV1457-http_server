@@ -6,9 +6,42 @@
 #include "log.h"
 
 char* logfilepath = "";
+FILE* logfd;
 
 int log_method = LOG_METHOD_SYSLOG;
 
+
+void log_init(){
+    switch (log_method){
+        case LOG_METHOD_SYSLOG:
+            break;
+        case LOG_METHOD_LOGFILE:
+            logfd = fopen(logfilepath, "w");
+            if (logfd == NULL){
+                printf("Invalid log file!\n");
+                exit(-1);
+            }
+            break;
+        default:
+            printf("Invalid log method\n");
+            exit(-1);
+            break;
+    }
+}
+
+void log_close(){
+    switch (log_method){
+        case LOG_METHOD_SYSLOG:
+            break;
+        case LOG_METHOD_LOGFILE:
+            fclose(logfd);
+            break;
+        default:
+            printf("Invalid log method\n");
+            exit(-1);
+            break;
+    }
+}
 
 void log_request(const char* ip, struct http_request* request, struct http_response* response){
 	time_t ctime; // calendar time
@@ -59,16 +92,10 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
             break;
         case LOG_METHOD_LOGFILE:
             {
-                FILE* fd = fopen(logfilepath, "a");
-                if (fd == NULL){
-                    printf("Invalid log file!\n");
-                    exit(-1);
-                }
-                fprintf(fd, "%s - - [%s] \"%s %s %s\" %s %d\n",
+                fprintf(logfd, "%s - - [%s] \"%s %s %s\" %s %d\n",
                     ip, timestr,
                     methodstr, request->path, request->version,
                     typestr, response->size);
-                fclose(fd);
             }
             break;
         default:

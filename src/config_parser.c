@@ -15,7 +15,7 @@ void parse_config(const char* filepath){
     
     FILE* fd = fopen(filepath, "r");
     if (fd == NULL){
-        printf("No config file available!\n");
+        printf("No config file available in this directory!\n");
         return;
     }
     // Read and parse config file

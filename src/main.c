@@ -17,7 +17,7 @@
 
 // Set externs
 int portnumber = 8080;
-char* wwwdir;
+char* wwwdir = NULL;
 bool running = true;
 int dispatch_method = DISPATCH_METHOD_FORK;
 
@@ -27,9 +27,6 @@ int main(int argc, char* argv[]) {
 	struct sockaddr_in sin, pin;
 	int sd, sd_current;
 	int addrlen;
-
-    wwwdir = malloc(50*sizeof(char));
-    strcpy(wwwdir, "/home/johan/Programming/C/DV1457-http_server/www");
 
     const char* helpmsg =
         "Simple HTTP 1.0 server\n"
@@ -41,9 +38,18 @@ int main(int argc, char* argv[]) {
         "\t-l logfile\n"
         "\t-s [fork|thread|prefork|mux]\n";
 
-
+    
     const char* configpath = "./.lab3-config";
     parse_config(configpath);
+    
+    if (wwwdir == NULL){
+        wwwdir = realpath("www", NULL);
+        if (wwwdir == NULL){
+            printf("No www folder in this directory!\n");
+            exit(-1);    
+        }
+    }
+
 
     for (int argi=1; argi<argc; argi++){
         if (strlen(argv[argi]) < 1){
@@ -107,8 +113,9 @@ int main(int argc, char* argv[]) {
     printf("wwwdir: %s\n", wwwdir);
     printf("port: %d\n", portnumber);
 
-    // chroot
+    log_init();
 
+    // Jail with chroot
     chdir(wwwdir);
     if (chroot(wwwdir) != 0) {
         perror("Unable to chroot");
@@ -158,6 +165,7 @@ int main(int argc, char* argv[]) {
         close(sd);
 
     free(wwwdir);
+    log_close();
 
 	exit(0);
 }

@@ -10,6 +10,9 @@ enum LOG_METHOD {
 
 extern char* logfilepath;
 
+void log_init();
+void log_close();
+
 extern int log_method;
 
 void log_request(const char* ip, struct http_request* request, struct http_response* response);
