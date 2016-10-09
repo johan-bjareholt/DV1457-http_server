@@ -100,10 +100,13 @@ struct http_response* generate_http_response(struct http_request* request){
             // Insert string
             res->size = fsize+(strlen(res_end));
             snprintf(res->message, totsize, res_200, timestr, modtimestr, res->size);
-            // Append file content to buffer
-            fread(res->message+strlen(res->message), fsize, sizeof(char), fd);
-            // End request
-            strcpy(res->message+strlen(res->message), res_end);
+            
+            if (request->type == HTTP_REQ_TYPE_GET){ 
+                // Append file content to buffer
+                fread(res->message+strlen(res->message), fsize, sizeof(char), fd);
+                // End request
+                strcpy(res->message+strlen(res->message), res_end);
+            }
             
             // Close file
             fclose(fd);
