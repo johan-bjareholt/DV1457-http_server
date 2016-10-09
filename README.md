@@ -14,8 +14,6 @@ A simple HTTP 1.0 server written in C for the course DV1457 Programming in a Uni
 #### ToDo
 
 - Test check_students script
-- Where should the config file be placed?
-- How to save logs outside of jail?
 - Handle ctrl+c
 - Jail only runs as root?
 - Kill all forked processes and threads instantly on shutdown
