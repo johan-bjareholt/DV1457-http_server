@@ -13,6 +13,8 @@ void dispatch_connection(int sd_current, struct sockaddr_in pin){
             thread_connection_handler(sd_current, pin);
             break;
         default:
+            printf("Fatal: Unknown dispatch method!\n");
+            exit(-1);
             break;
     }    
 }

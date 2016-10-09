@@ -10,11 +10,9 @@ void free_http_request(struct http_request* target){
 struct http_request* parse_http_request(char* payload){
     int i, start, end;
     char* saveptr;
-   
-    // Get first line
-    char* first_line = strtok_r(payload, "\r\n", &saveptr);
     
-    // Copy properties
+    // Get properties
+    strtok_r(payload, "\r\n", &saveptr); // Skip first line to retreive properties
     char* properties_str_tmp = strtok_r(NULL, "\0", &saveptr);
     
     // Parse type
@@ -39,13 +37,12 @@ struct http_request* parse_http_request(char* payload){
     }
 
     // Debug Parsing
-    //printf("First line: %s\n", first_line);
     //printf("Type: %s\n", type_str);
     //printf("Path: %s\n", path_str);
     //printf("Version: %s\n", version_str);
     //printf("Properties:\n%s\n", properties_str);
 
-    // Copy strings to allocated memory
+    // Copy strings to allocated memory for struct http_request
     char* properties_str = malloc((strlen(properties_str_tmp)+1)*sizeof(char));
     strcpy(properties_str, properties_str_tmp);
     char* path_str = malloc((strlen(path_str_tmp)+1)*sizeof(char));
@@ -57,7 +54,7 @@ struct http_request* parse_http_request(char* payload){
     if (strcmp(path_str, "") == 0 || strcmp(path_str, "/") == 0){
         free(path_str);
         const char* index_path = "/index.html";
-        path_str = malloc(strlen(index_path)*sizeof(char));
+        path_str = malloc((strlen(index_path)+1)*sizeof(char));
         strcpy(path_str, index_path);
     }
 
