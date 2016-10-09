@@ -1,13 +1,12 @@
-#include <sys/types.h>
 #include <stdio.h>
-#include <signal.h>
-#include <stdbool.h>
-#include <netdb.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <sys/errno.h>
-#include <pwd.h>
+#include <signal.h>
+#include <string.h>
+// INET
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "main.h"
 #include "log.h"

@@ -1,10 +1,5 @@
 #pragma once
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-
 #include "request_handler.h"
 
 enum HTTP_RESPONSE_TYPE {

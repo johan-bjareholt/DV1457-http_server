@@ -1,3 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+// INET
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "main.h"
 #include "connection_handler.h"
 #include "log.h"
@@ -17,7 +26,7 @@ void handle_connection(struct handle_connection_params* params){
     inet_ntop(AF_INET, &params->pin.sin_addr, ipAddress, sizeof(ipAddress));
     
     printf("Request from %s:%i\n", ipAddress, ntohs(params->pin.sin_port));
-    //printf("Message: %s\n", buf);
+    //printf("Received request: %s\n", buf);
     
     struct http_request* request = parse_http_request(buf);
 

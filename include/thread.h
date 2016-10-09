@@ -1,10 +1,6 @@
 #pragma once
 
-#include <netdb.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "connection_handler.h"
 
 enum DISPATCH_METHOD {
     DISPATCH_METHOD_FORK,
@@ -13,5 +9,5 @@ enum DISPATCH_METHOD {
 
 void dispatch_connection(int sd_current, struct sockaddr_in pin);
 
-void fork_connection_handler(int sd_current, struct sockaddr_in pin);
-void thread_connection_handler(int sd_current, struct sockaddr_in pin);
+void fork_connection_handler(struct handle_connection_params* params);
+void thread_connection_handler(struct handle_connection_params* params);

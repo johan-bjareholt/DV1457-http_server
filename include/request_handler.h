@@ -1,8 +1,5 @@
 #pragma once
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 enum HTTP_REQUEST_TYPE {
     HTTP_REQ_TYPE_HEAD,

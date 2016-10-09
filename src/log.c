@@ -1,7 +1,9 @@
-#include "log.h"
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <time.h>
+
+#include "log.h"
 
 char* logfilepath = "";
 

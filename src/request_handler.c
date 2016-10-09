@@ -1,3 +1,7 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "request_handler.h"
 
 void free_http_request(struct http_request* target){
