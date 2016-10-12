@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <syslog.h>
 // INET
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
     if (wwwdir == NULL){
         wwwdir = realpath("www", NULL);
         if (wwwdir == NULL){
-            printf("No www folder in this directory!\n");
+            puts("No www folder in this directory!");
             exit(-1);    
         }
     }
@@ -54,18 +55,18 @@ int main(int argc, char* argv[]) {
 
     for (int argi=1; argi<argc; argi++){
         if (strlen(argv[argi]) < 1){
-            printf("Unknown parameter\n");
-            printf(helpmsg);
+            puts("Unknown parameter");
+            puts(helpmsg);
         }
         switch(argv[argi][1]){
             case 'h':
-                printf(helpmsg);
+                puts(helpmsg);
                 exit(0);
                 break;
             case 'p':
                 if (argi+1 >= argc){
-                    printf("No port specified!\n");
-                    printf(helpmsg);
+                    puts("No port specified!");
+                    puts(helpmsg);
                     exit(-1);
                 }
                 argi++;
@@ -76,8 +77,8 @@ int main(int argc, char* argv[]) {
                 break;
             case 'l':
                 if (argi+1 >= argc){
-                    printf("No logfile specified!\n");
-                    printf(helpmsg);
+                    puts("No logfile specified!");
+                    puts(helpmsg);
                     exit(-1);
                 }
                 log_method = LOG_METHOD_LOGFILE;
@@ -86,8 +87,8 @@ int main(int argc, char* argv[]) {
                 break;
             case 's':
                 if (argi+1 >= argc){
-                    printf("No multiprocessing method specified!\n");
-                    printf(helpmsg);
+                    puts("No multiprocessing method specified!");
+                    puts(helpmsg);
                     exit(-1);
                 }
                 argi++;
@@ -99,13 +100,13 @@ int main(int argc, char* argv[]) {
                     dispatch_method = DISPATCH_METHOD_THREAD;
                 }
                 else {
-                    printf("Invalid method\n");
+                    puts("Invalid method");
                     exit(-1);
                 }
                 break;
             default:
-                printf(helpmsg);
-                printf("Unknown parameter\n");
+                puts(helpmsg);
+                puts("Unknown parameter");
                 exit(-1);
                 break;
         }
@@ -119,7 +120,7 @@ int main(int argc, char* argv[]) {
     printf("port: %d\n", portnumber);
 
     log_init();
-
+    
     // Jail with chroot
     chdir(wwwdir);
     if (chroot(wwwdir) != 0) {
@@ -129,6 +130,8 @@ int main(int argc, char* argv[]) {
     free(wwwdir);
     wwwdir = malloc(sizeof(char));
     strcpy(wwwdir, "");
+    
+    openlog("httpd", LOG_PID, LOG_DAEMON);
     
     // Handle children so they don't become zombies
     struct sigaction sigchld_action = {
@@ -156,7 +159,7 @@ int main(int argc, char* argv[]) {
 
     parent_pid = getpid();
     
-    printf("Waiting for connections...\n");
+    puts("Waiting for connections...");
     while (running){
         
         addrlen = sizeof(pin);
