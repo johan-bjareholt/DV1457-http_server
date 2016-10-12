@@ -36,7 +36,10 @@ daemonize()
     // Print process ID
     pid = getpid();
     printf("Process id: %d\n", pid);
-  
+ 
+    // Set new file permissions
+    umask(0);
+
     // Close all open file descriptors.
     for (int x = sysconf(_SC_OPEN_MAX); x>0; x--)
         close (x);
