@@ -38,10 +38,8 @@ daemonize()
     printf("Process id: %d\n", pid);
   
     // Close all open file descriptors.
-    if (rl.rlim_max == RLIM_INFINITY)
-        rl.rlim_max = 1024;
-    for (i = 0; i < rl.rlim_max; i++)
-        close(i);
+    for (int x = sysconf(_SC_OPEN_MAX); x>0; x--)
+        close (x);
     
     // Attach file descriptors 0, 1, and 2 to /dev/null.
     fd0 = open("/dev/null", O_RDWR);

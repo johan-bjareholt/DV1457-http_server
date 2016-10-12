@@ -14,6 +14,7 @@ int log_method = LOG_METHOD_SYSLOG;
 void log_init(){
     switch (log_method){
         case LOG_METHOD_SYSLOG:
+            openlog("httpd", LOG_PID, LOG_DAEMON);
             break;
         case LOG_METHOD_LOGFILE:
             logfd = fopen(logfilepath, "w");
@@ -32,6 +33,7 @@ void log_init(){
 void log_close(){
     switch (log_method){
         case LOG_METHOD_SYSLOG:
+            closelog();
             break;
         case LOG_METHOD_LOGFILE:
             fclose(logfd);
@@ -85,7 +87,7 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
 
     switch (log_method){
         case LOG_METHOD_SYSLOG:
-            syslog(LOG_NOTICE, "%s - - [%s] \"%s %s %s\" %s %d",
+            syslog(LOG_INFO, "%s - - [%s] \"%s %s %s\" %s %d",
                     ip, timestr,
                     methodstr, request->path, request->version,
                     typestr, response->size);

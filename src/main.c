@@ -18,6 +18,7 @@
 // Set externs
 int portnumber = 8080;
 char* wwwdir = NULL;
+bool run_as_daemon = false;
 bool running = true;
 int dispatch_method = DISPATCH_METHOD_FORK;
 
@@ -71,7 +72,7 @@ int main(int argc, char* argv[]) {
                 portnumber = atoi(argv[argi]);
                 break;
             case 'd':
-                daemonize();
+                run_as_daemon = true;
                 break;
             case 'l':
                 if (argi+1 >= argc){
@@ -110,6 +111,10 @@ int main(int argc, char* argv[]) {
         }
     }
     
+
+    if (run_as_daemon)
+        daemonize();
+
     printf("wwwdir: %s\n", wwwdir);
     printf("port: %d\n", portnumber);
 
