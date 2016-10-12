@@ -40,11 +40,12 @@ daemonize()
     // Set new file permissions
     umask(0);
 
-    // Close all open file descriptors.
-    for (int x = sysconf(_SC_OPEN_MAX); x>0; x--)
-        close (x);
+    // Close stdio file descriptors.
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
     
-    // Attach file descriptors 0, 1, and 2 to /dev/null.
+    // Attach stdio descriptors 0, 1, and 2 to /dev/null.
     fd0 = open("/dev/null", O_RDWR);
     fd1 = dup(0);
     fd2 = dup(0);
