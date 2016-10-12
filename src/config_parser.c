@@ -23,8 +23,9 @@ void parse_config(const char* filepath){
     while (true){
         if (fgets(line, 128*sizeof(char), fd) == NULL)
             break;
-        char* key = strtok(line, "=");
-        char* value = strtok(NULL, "\n");
+        char* saveptr;
+        char* key = strtok_r(line, "=", &saveptr);
+        char* value = strtok_r(NULL, "\n", &saveptr);
         //printf("%s\n",key);
         //printf("%s\n",value);
 
@@ -33,8 +34,9 @@ void parse_config(const char* filepath){
         }
         else if (strcmp(key, "wwwdir") == 0){
             free(wwwdir);
-            wwwdir = malloc((strlen(value)+1)*sizeof(char));
-            strcpy(wwwdir, value);
+            size_t wwwdir_size = (strlen(value)+1)*sizeof(char);
+            wwwdir = malloc(wwwdir_size);
+            strncpy(wwwdir, value, wwwdir_size);
         }
         else {
             printf("Invalid key in configuration: %s\n", key);

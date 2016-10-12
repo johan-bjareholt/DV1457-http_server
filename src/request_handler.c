@@ -47,19 +47,25 @@ struct http_request* parse_http_request(char* payload){
     //printf("Properties:\n%s\n", properties_str);
 
     // Copy strings to allocated memory for struct http_request
-    char* properties_str = malloc((strlen(properties_str_tmp)+1)*sizeof(char));
-    strcpy(properties_str, properties_str_tmp);
-    char* path_str = malloc((strlen(path_str_tmp)+1)*sizeof(char));
-    strcpy(path_str, path_str_tmp);
-    char* version_str = malloc((strlen(version_str_tmp)+1)*sizeof(char));
-    strcpy(version_str, version_str_tmp);
+    size_t properties_str_size = (strlen(properties_str_tmp)+1)*sizeof(char);
+    char* properties_str = malloc(properties_str_size);
+    strncpy(properties_str, properties_str_tmp, properties_str_size);
+   
+    size_t path_str_size = (strlen(path_str_tmp)+1)*sizeof(char);
+    char* path_str = malloc(properties_str_size);
+    strncpy(path_str, path_str_tmp, path_str_size);
+   
+    size_t version_str_size = (strlen(version_str_tmp)+1)*sizeof(char);
+    char* version_str = malloc(version_str_size);
+    strncpy(version_str, version_str_tmp, version_str_size);
 
     // Check if path should redirect to index.html
     if (strcmp(path_str, "") == 0 || strcmp(path_str, "/") == 0){
         free(path_str);
         const char* index_path = "/index.html";
-        path_str = malloc((strlen(index_path)+1)*sizeof(char));
-        strcpy(path_str, index_path);
+        path_str_size = (strlen(index_path)+1)*sizeof(char);
+        path_str = malloc(path_str_size);
+        strncpy(path_str, index_path, path_str_size);
     }
 
     // Create struct

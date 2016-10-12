@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         "\t-p port (default: 8080)\n"
         "\t-d Run as daemon\n"
         "\t-l logfile\n"
-        "\t-s [fork|thread|prefork|mux]\n";
+        "\t-s [fork|thread]\n";
 
     
     const char* configpath = "./.lab3-config";
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
     }
     free(wwwdir);
     wwwdir = malloc(sizeof(char));
-    strcpy(wwwdir, "");
+    strncpy(wwwdir, "", 1);
     
     openlog("httpd", LOG_PID, LOG_DAEMON);
     
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
 		DIE("bind");
 	}
 
-    if(listen(sd, 10) == -1) {
+    if(listen(sd, 100) == -1) {
         DIE("listen");
     }
 

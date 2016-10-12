@@ -25,7 +25,7 @@ void handle_connection(struct handle_connection_params* params){
     
     inet_ntop(AF_INET, &params->pin.sin_addr, ipAddress, sizeof(ipAddress));
     
-    printf("Request from %s:%i\n", ipAddress, ntohs(params->pin.sin_port));
+    //printf("Request from %s:%i\n", ipAddress, ntohs(params->pin.sin_port));
     //printf("Received request: %s\n", buf);
     
     struct http_request* request = parse_http_request(buf);
