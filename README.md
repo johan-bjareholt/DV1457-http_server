@@ -13,7 +13,8 @@ A simple HTTP 1.0 server written in C for the course DV1457 Programming in a Uni
 
 #### ToDo
 
-- Test check_students script
 - Handle ctrl+c
-- Jail only runs as root?
 - Kill all forked processes and threads instantly on shutdown
+- Fix syslog in jail (pass flag to openlog to instantly open)
+- Fix log to file in thread/fork (it creates the file but doesn't write anything)
+- Segfaults during heavy parallell load when using threads
