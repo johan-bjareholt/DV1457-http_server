@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <syslog.h>
 #include <time.h>
+#include <pthread.h>
 
 #include "log.h"
 
@@ -10,8 +11,10 @@ FILE* logfd;
 
 int log_method = LOG_METHOD_SYSLOG;
 
+static pthread_mutex_t log_lock;
 
 void log_init(){
+    pthread_mutex_init(&log_lock, NULL);
     switch (log_method){
         case LOG_METHOD_SYSLOG:
             openlog("httpd", LOG_PID | LOG_NDELAY, LOG_DAEMON);
@@ -46,6 +49,9 @@ void log_close(){
 }
 
 void log_request(const char* ip, struct http_request* request, struct http_response* response){
+
+    pthread_mutex_lock(&log_lock);
+
 	time_t ctime; // calendar time
     struct tm * timeinfo; // time+timezone
     
@@ -98,6 +104,7 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
                     ip, timestr,
                     methodstr, request->path, request->version,
                     typestr, response->size);
+                fflush(logfd);
             }
             break;
         default:
@@ -105,4 +112,6 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
             exit(-1);
             break;
     }
+
+    pthread_mutex_unlock(&log_lock);
 }
