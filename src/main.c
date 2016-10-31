@@ -131,8 +131,6 @@ int main(int argc, char* argv[]) {
     wwwdir = malloc(sizeof(char));
     strncpy(wwwdir, "", 1);
     
-    openlog("httpd", LOG_PID, LOG_DAEMON);
-    
     // Handle children so they don't become zombies
     struct sigaction sigchld_action = {
         .sa_handler = SIG_DFL,

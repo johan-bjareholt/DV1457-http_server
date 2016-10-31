@@ -14,7 +14,7 @@ int log_method = LOG_METHOD_SYSLOG;
 void log_init(){
     switch (log_method){
         case LOG_METHOD_SYSLOG:
-            openlog("httpd", LOG_PID, LOG_DAEMON);
+            openlog("httpd", LOG_PID | LOG_NDELAY, LOG_DAEMON);
             break;
         case LOG_METHOD_LOGFILE:
             logfd = fopen(logfilepath, "w");
