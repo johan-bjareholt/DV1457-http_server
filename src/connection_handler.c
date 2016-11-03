@@ -14,31 +14,27 @@
 #define BUFSIZE 8192
 
 void handle_connection(struct handle_connection_params* params){
-	char* buf = calloc(BUFSIZE, 1);
-    if (recv(params->sd_current, buf, BUFSIZE, 0) == -1) {
+	char* payload = calloc(BUFSIZE, 1);
+    char* ipaddr_str = calloc(INET_ADDRSTRLEN, 1);
+
+    if (recv(params->sd_current, payload, BUFSIZE, 0) == -1) {
         perror("recv");
         exit(-1);
-        DIE("recv");
     }
 
-    char ipAddress[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &params->pin.sin_addr, ipaddr_str, INET_ADDRSTRLEN);
 
-    inet_ntop(AF_INET, &params->pin.sin_addr, ipAddress, sizeof(ipAddress));
+    //printf("Request from %s:%i\n", ipaddr_str, ntohs(params->pin.sin_port));
 
-    //printf("Request from %s:%i\n", ipAddress, ntohs(params->pin.sin_port));
-    //printf("Received request: %s\n", buf);
-
-    struct http_request* request = parse_http_request(buf);
+    struct http_request* request = parse_http_request(payload);
 
     struct http_response* response = generate_http_response(request);
 
-    if (request != NULL && response != NULL)
-        log_request(ipAddress, request, response);
+    log_request(ipaddr_str, request, response);
 
     if(send(params->sd_current, response->message, strlen(response->message), 0) == -1) {
-        DIE("send");
+        printf("Failed to send reponse\n");
     }
-    //printf("\nSent response: %s\n", response->message);
 
     // Cleanup
     if (request != NULL)
@@ -46,6 +42,7 @@ void handle_connection(struct handle_connection_params* params){
     if (response != NULL)
         free_http_response(response);
     close(params->sd_current);
-    free(buf);
+    free(ipaddr_str);
+    free(payload);
     free(params);
 }

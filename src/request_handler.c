@@ -12,8 +12,7 @@ void free_http_request(struct http_request* target){
 }
 
 struct http_request* parse_http_request(char* payload){
-    int i, start, end;
-    char* saveptr;
+    char* saveptr = NULL;
 
     // Get properties
     strtok_r(payload, "\r\n", &saveptr); // Skip first line to retreive properties
@@ -31,10 +30,7 @@ struct http_request* parse_http_request(char* payload){
     if (type_str_tmp == NULL ||
         path_str_tmp == NULL ||
         version_str_tmp == NULL)
-    {
-        printf("Bad request parsed\n");
         return NULL;
-    }
 
     // Check type
     int http_type = HTTP_REQ_TYPE_UNKNOWN;

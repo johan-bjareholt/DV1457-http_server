@@ -30,6 +30,7 @@ void handler(int signo){
     if (signo == SIGKILL || signo == SIGINT){
         close(sd);
     }
+    exit(0);
 }
 
 int main(int argc, char* argv[]) {

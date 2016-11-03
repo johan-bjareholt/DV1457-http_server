@@ -48,10 +48,14 @@ void log_close(){
     }
 }
 
-void log_request(const char* ip, struct http_request* request, struct http_response* response){
+void log_request(const char* ipstr, struct http_request* request, struct http_response* response){
 
+    // Lock mutex to avoid simultaneous writes
     pthread_mutex_lock(&log_lock);
 
+    // IP is argument
+    
+    // Time
 	time_t ctime; // calendar time
     struct tm * timeinfo; // time+timezone
     
@@ -61,49 +65,67 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
     char timestr [80];
     strftime (timestr,80,"%d/%h/%G:%T %z",timeinfo);
 
-    char* methodstr;
-
-    switch(request->type){
-        case HTTP_REQ_TYPE_HEAD:
-            methodstr = "HEAD";
-            break;
-        case HTTP_REQ_TYPE_GET:
-            methodstr = "GET";
-            break;
-        default:
-            methodstr = "Invalid";
-            break;
+    // Method
+    char* methodstr = "Invalid";
+    if (request != NULL){
+        switch(request->type){
+            case HTTP_REQ_TYPE_HEAD:
+                methodstr = "HEAD";
+                break;
+            case HTTP_REQ_TYPE_GET:
+                methodstr = "GET";
+                break;
+        }
     }
 
-    char* typestr;
-    switch(response->type){
-        case HTTP_RES_TYPE_200:
-            typestr = "200"; break;
-        case HTTP_RES_TYPE_400:
-            typestr = "400"; break;
-        case HTTP_RES_TYPE_404:
-            typestr = "404"; break;
-        case HTTP_RES_TYPE_500:
-            typestr = "500"; break;
-        case HTTP_RES_TYPE_501:
-            typestr = "501"; break;
-        case HTTP_RES_TYPE_UNKNOWN:
-            typestr = "Invalid"; break;
+    // Path
+    char* pathstr = "None";
+    if (request != NULL)
+        pathstr = request->path;
+    
+    // Version
+    char* versionstr = "Unknown";
+    if (request != NULL)
+        versionstr = request->version;
+    
+    // Type
+    char* typestr = "Invalid";
+    if (response != NULL){
+        char* typestr;
+        switch(response->type){
+            case HTTP_RES_TYPE_200:
+                typestr = "200"; break;
+            case HTTP_RES_TYPE_400:
+                typestr = "400"; break;
+            case HTTP_RES_TYPE_404:
+                typestr = "404"; break;
+            case HTTP_RES_TYPE_500:
+                typestr = "500"; break;
+            case HTTP_RES_TYPE_501:
+                typestr = "501"; break;
+            case HTTP_RES_TYPE_UNKNOWN:
+                typestr = "Invalid"; break;
+        }
     }
+    
+    // Size
+    int sizeint = -1;
+    if (response != NULL)
+        sizeint = response->size;
 
     switch (log_method){
         case LOG_METHOD_SYSLOG:
             syslog(LOG_INFO, "%s - - [%s] \"%s %s %s\" %s %d",
-                    ip, timestr,
-                    methodstr, request->path, request->version,
-                    typestr, response->size);
+                    ipstr, timestr,
+                    methodstr, pathstr, versionstr,
+                    typestr, sizeint);
             break;
         case LOG_METHOD_LOGFILE:
             {
                 fprintf(logfd, "%s - - [%s] \"%s %s %s\" %s %d\n",
-                    ip, timestr,
-                    methodstr, request->path, request->version,
-                    typestr, response->size);
+                    ipstr, timestr,
+                    methodstr, pathstr, versionstr,
+                    typestr, sizeint);
                 fflush(logfd);
             }
             break;
@@ -112,6 +134,7 @@ void log_request(const char* ip, struct http_request* request, struct http_respo
             exit(-1);
             break;
     }
-
+    
+    // Unlock mutex for next write
     pthread_mutex_unlock(&log_lock);
 }
