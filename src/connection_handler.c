@@ -14,7 +14,7 @@
 #define BUFSIZE 8192
 
 void handle_connection(struct handle_connection_params* params){
-	char* buf = malloc(BUFSIZE);
+	char* buf = calloc(BUFSIZE, 1);
     if (recv(params->sd_current, buf, BUFSIZE, 0) == -1) {
         perror("recv");
         exit(-1);

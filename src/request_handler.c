@@ -28,19 +28,25 @@ struct http_request* parse_http_request(char* payload){
     // Parse version
     char* version_str_tmp = strtok_r(NULL, "\r\n", &saveptr);
 
+    if (type_str_tmp == NULL ||
+        path_str_tmp == NULL ||
+        version_str_tmp == NULL)
+    {
+        printf("Bad request parsed\n");
+        return NULL;
+    }
+
     // Check type
     int http_type = HTTP_REQ_TYPE_UNKNOWN;
-    if (strcmp(type_str_tmp, "HEAD") == 0){
+    if (strncmp(type_str_tmp, "HEAD", 4) == 0){
         http_type = HTTP_REQ_TYPE_HEAD;
     }
-    else if (strcmp(type_str_tmp, "GET") == 0){
+    else if (strncmp(type_str_tmp, "GET", 3) == 0){
         http_type = HTTP_REQ_TYPE_GET;
     }
     else {
         // Unknown request type
-        //http_type = HTTP_REQ_TYPE_UNKNOWN;
-        printf("Bad request parsed\n");
-        return NULL;
+        http_type = HTTP_REQ_TYPE_UNKNOWN;
     }
 
     // Copy strings to allocated memory for struct http_request

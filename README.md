@@ -13,5 +13,4 @@ A simple HTTP 1.0 server written in C for the course DV1457 Programming in a Uni
 
 #### ToDo
 
-- Handle ctrl+c
 - Kill all forked processes and threads instantly on shutdown
