@@ -24,10 +24,17 @@ bool running = true;
 int dispatch_method = DISPATCH_METHOD_FORK;
 
 pid_t parent_pid;
+int sd;
+
+void handler(int signo){
+    if (signo == SIGKILL || signo == SIGINT){
+        close(sd);
+    }
+}
 
 int main(int argc, char* argv[]) {
 	struct sockaddr_in sin, pin;
-	int sd, sd_current;
+	int sd_current;
 	int addrlen;
 
     const char* helpmsg =
@@ -100,7 +107,7 @@ int main(int argc, char* argv[]) {
                     dispatch_method = DISPATCH_METHOD_THREAD;
                 }
                 else {
-                    puts("Invalid method");
+                    puts("Invalid dispatch method");
                     exit(-1);
                 }
                 break;
@@ -137,6 +144,13 @@ int main(int argc, char* argv[]) {
         .sa_flags = SA_NOCLDWAIT
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
+
+    // Handle interrupts so the sockets gets closed
+    struct sigaction sigint_action = {
+        .sa_handler = handler
+    };
+    sigaction(SIGINT, &sigint_action, NULL);
+    sigaction(SIGKILL, &sigint_action, NULL);
 
 	if((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		DIE("socket");
