@@ -14,47 +14,50 @@ void free_http_request(struct http_request* target){
 struct http_request* parse_http_request(char* payload){
     int i, start, end;
     char* saveptr;
-    
+
     // Get properties
     strtok_r(payload, "\r\n", &saveptr); // Skip first line to retreive properties
     char* properties_str_tmp = strtok_r(NULL, "\0", &saveptr);
-    
+
     // Parse type
-    char* type_str = strtok_r(payload, " ", &saveptr);
+    char* type_str_tmp = strtok_r(payload, " ", &saveptr);
 
     // Parse path
     char* path_str_tmp = strtok_r(NULL, " ", &saveptr);
-    
+
     // Parse version
     char* version_str_tmp = strtok_r(NULL, "\r\n", &saveptr);
 
     // Check type
     int http_type = HTTP_REQ_TYPE_UNKNOWN;
-    if (strcmp(type_str, "HEAD") == 0){
+    if (strcmp(type_str_tmp, "HEAD") == 0){
         http_type = HTTP_REQ_TYPE_HEAD;
     }
-    else if (strcmp(type_str, "GET") == 0){
+    else if (strcmp(type_str_tmp, "GET") == 0){
         http_type = HTTP_REQ_TYPE_GET;
     }
     else {
-        http_type = HTTP_REQ_TYPE_UNKNOWN;
+        // Unknown request type
+        //http_type = HTTP_REQ_TYPE_UNKNOWN;
+        printf("Bad request parsed\n");
+        return NULL;
     }
-
-    // Debug Parsing
-    //printf("Type: %s\n", type_str);
-    //printf("Path: %s\n", path_str);
-    //printf("Version: %s\n", version_str);
-    //printf("Properties:\n%s\n", properties_str);
 
     // Copy strings to allocated memory for struct http_request
     size_t properties_str_size = (strlen(properties_str_tmp)+1)*sizeof(char);
     char* properties_str = malloc(properties_str_size);
     strncpy(properties_str, properties_str_tmp, properties_str_size);
-   
+
+    // Debug Parsing
+    //printf("Type: %s\n", type_str_tmp);
+    //printf("Path: %s\n", path_str_tmp);
+    //printf("Version: %s\n", version_str_tmp);
+    //printf("Properties:\n%s\n", properties_str);
+
     size_t path_str_size = (strlen(path_str_tmp)+1)*sizeof(char);
     char* path_str = malloc(properties_str_size);
     strncpy(path_str, path_str_tmp, path_str_size);
-   
+
     size_t version_str_size = (strlen(version_str_tmp)+1)*sizeof(char);
     char* version_str = malloc(version_str_size);
     strncpy(version_str, version_str_tmp, version_str_size);
@@ -75,6 +78,5 @@ struct http_request* parse_http_request(char* payload){
     req->version = version_str;
     req->properties = properties_str;
 
-    // TODO: Return null if unable to parse so the server can raise a 400-Bad Request
     return req;
 }
