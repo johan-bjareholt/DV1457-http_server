@@ -91,7 +91,6 @@ void log_request(const char* ipstr, struct http_request* request, struct http_re
     // Type
     char* typestr = "Invalid";
     if (response != NULL){
-        char* typestr;
         switch(response->type){
             case HTTP_RES_TYPE_200:
                 typestr = "200"; break;
