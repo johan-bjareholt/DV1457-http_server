@@ -57,7 +57,7 @@ struct http_request* parse_http_request(char* payload){
     //printf("Properties:\n%s\n", properties_str);
 
     size_t path_str_size = (strlen(path_str_tmp)+1)*sizeof(char);
-    char* path_str = malloc(properties_str_size);
+    char* path_str = malloc(path_str_size);
     strncpy(path_str, path_str_tmp, path_str_size);
 
     size_t version_str_size = (strlen(version_str_tmp)+1)*sizeof(char);
